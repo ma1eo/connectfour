@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #game-info {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        #connect4-board {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            gap: 5px;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #ddd;
+            transform: scale(1.1); /* Add a slight zoom effect on hover */
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const board = document.getElementById("connect4-board");
+            const info = document.getElementById("game-info");
+            const ROWS = 6;
+            const COLS = 7;
+            let currentPlayer = "X";
+            let gameEnded = false;
+
+            // Initialize the game board
+            function initializeBoard() {
+                for (let i = 0; i < ROWS; i++) {
+                    for (let j = 0; j < COLS; j++) {
+                        const cell = document.createElement("div");
+                        cell.classList.add("cell");
+                        cell.addEventListener("click", () => makeMove(j));
+                        board.appendChild(cell);
+                    }
+                }
+            }
+
+            // Make a move (player or computer)
+            function makeMove(col) {
+                if (gameEnded) return;
+
+                const cells = document.querySelectorAll(".cell");
+                let row = ROWS - 1;
+
+                while (row >= 0 && cells[row * COLS + col].innerText !== "") {
+                    row--;
+                }
+
+                if (row >= 0) {
+                    cells[row * COLS + col].innerText = currentPlayer;
+                    if (checkWin(row, col)) {
+                        if (currentPlayer === "X") {
+                            alert("You win!");
+                        } else {
+                            alert("Computer wins!");
+                        }
+                        gameEnded = true;
+                        resetGame(); // Reset the game after a win
+                    } else if (checkDraw()) {
+                        alert("It's a draw!");
+                        gameEnded = true;
+                        resetGame(); // Reset the game after a draw
+                    } else {
+                        currentPlayer = currentPlayer === "X" ? "Y" : "X";
+                        if (currentPlayer === "Y") {
+                            // Computer's move
+                            setTimeout(() => makeComputerMove(), 500);
+                        }
+                    }
+                }
+            }
+
+            // Make a random computer move
+            function makeComputerMove() {
+                if (gameEnded) return;
+
+                const availableCols = Array.from({ length: COLS }, (_, i) => i)
+                    .filter(col => document.querySelector(`.cell:nth-child(${(ROWS - 1) * COLS + col + 1})`).innerText === "");
+
+                if (availableCols.length > 0) {
+                    const randomCol = availableCols[Math.floor(Math.random() * availableCols.length)];
+                    makeMove(randomCol);
+                } else {
+                    // No available columns in the top row, find the first available column from the bottom
+                    for (let row = ROWS - 1; row >= 0; row--) {
+                        for (let col = 0; col < COLS; col++) {
+                            if (document.querySelector(`.cell:nth-child(${row * COLS + col + 1})`).innerText === "") {
+                                makeMove(col);
+                                return;
+                            }
+                        }
+                    }
+
+                    // If no available columns found, the game might be in a draw or finished
+                    if (!checkDraw()) {
+                        // Game is not in a draw, reset the game or perform any necessary actions
+                        resetGame();
+                    }
+                }
+            }
+
+            // Check for a win
+            function checkWin(row, col) {
+                return (
+                    checkDirection(row, col, 0, 1) || // Horizontal
+                    checkDirection(row, col, 1, 0) || // Vertical
+                    checkDirection(row, col, 1, 1) || // Diagonal /
+                    checkDirection(row, col, 1, -1)   // Diagonal \
+                );
+            }
+
+            function checkDirection(row, col, rowIncrement, colIncrement) {
+                const player = currentPlayer;
+                let count = 1; // The current cell is already occupied by the player
+
+                // Check in one direction
+                for (let i = 1; i <= 3; i++) {
+                    const newRow = row + i * rowIncrement;
+                    const newCol = col + i * colIncrement;
+
+                    if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS &&
+                        document.querySelector(`.cell:nth-child(${newRow * COLS + newCol + 1})`).innerText === player) {
+                        count++;
+                    } else {
+                        break; // Stop checking in this direction
+                    }
+                }
+
+                // Check in the opposite direction
+                for (let i = 1; i <= 3; i++) {
+                    const newRow = row - i * rowIncrement;
+                    const newCol = col - i * colIncrement;
+
+                    if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS &&
+                        document.querySelector(`.cell:nth-child(${newRow * COLS + newCol + 1})`).innerText === player) {
+                        count++;
+                    } else {
+                        break; // Stop checking in this direction
+                    }
+                }
+
+                return count >= 4;
+            }
+
+            // Check for a draw
+            function checkDraw() {
+                const cells = document.querySelectorAll(".cell");
+                return Array.from(cells).every(cell => cell.innerText !== "");
+            }
+
+            // Reset the game
+            function resetGame() {
+                const cells = document.querySelectorAll(".cell");
+                cells.forEach(cell => (cell.innerText = ""));
+                currentPlayer = "X";
+                gameEnded = false;
+            }
+
+            initializeBoard();
+            info.textContent = "X is the player, Y is the opponent";
+        });
+    </script>
+    <title>Connect 4</title>
+</head>
+<body>
+    <div id="game-info"></div>
+    <div id="connect4-board"></div>
+</body>
+</html>
