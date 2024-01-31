@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
 
         .cell:hover {
             background-color: #ddd;
-            transform: scale(1.1); /* Add a slight zoom effect on hover */
+            transform: scale(1.1); /* Ein leichter Zoom-Effekt beim Überfahren */
         }
     </style>
     <script>
@@ -57,7 +57,7 @@
             let currentPlayer = "X";
             let gameEnded = false;
 
-            // Initialize the game board
+            // Spielbrett initialisieren
             function initializeBoard() {
                 for (let i = 0; i < ROWS; i++) {
                     for (let j = 0; j < COLS; j++) {
@@ -69,7 +69,7 @@
                 }
             }
 
-            // Make a move (player or computer)
+            // Zug machen (Spieler oder Computer)
             function makeMove(col) {
                 if (gameEnded) return;
 
@@ -84,27 +84,27 @@
                     cells[row * COLS + col].innerText = currentPlayer;
                     if (checkWin(row, col)) {
                         if (currentPlayer === "X") {
-                            alert("You win!");
+                            alert("Du gewinnst!");
                         } else {
-                            alert("Computer wins!");
+                            alert("Computer gewinnt!");
                         }
                         gameEnded = true;
-                        resetGame(); // Reset the game after a win
+                        resetGame(); // Spiel nach einem Gewinn zurücksetzen
                     } else if (checkDraw()) {
-                        alert("It's a draw!");
+                        alert("Unentschieden!");
                         gameEnded = true;
-                        resetGame(); // Reset the game after a draw
+                        resetGame(); // Spiel nach einem Unentschieden zurücksetzen
                     } else {
                         currentPlayer = currentPlayer === "X" ? "Y" : "X";
                         if (currentPlayer === "Y") {
-                            // Computer's move
+                            // Zug des Computers
                             setTimeout(() => makeComputerMove(), 500);
                         }
                     }
                 }
             }
 
-            // Make a random computer move
+            // Zufälligen Computerzug machen
             function makeComputerMove() {
                 if (gameEnded) return;
 
@@ -115,7 +115,7 @@
                     const randomCol = availableCols[Math.floor(Math.random() * availableCols.length)];
                     makeMove(randomCol);
                 } else {
-                    // No available columns in the top row, find the first available column from the bottom
+                    // Keine verfügbaren Spalten in der obersten Reihe, die erste verfügbare Spalte von unten finden
                     for (let row = ROWS - 1; row >= 0; row--) {
                         for (let col = 0; col < COLS; col++) {
                             if (document.querySelector(`.cell:nth-child(${row * COLS + col + 1})`).innerText === "") {
@@ -125,19 +125,19 @@
                         }
                     }
 
-                    // If no available columns found, the game might be in a draw or finished
+                    // Wenn keine verfügbaren Spalten gefunden werden, könnte das Spiel unentschieden oder beendet sein
                     if (!checkDraw()) {
-                        // Game is not in a draw, reset the game or perform any necessary actions
+                        // Das Spiel ist nicht unentschieden, setze das Spiel zurück oder führe die erforderlichen Aktionen durch
                         resetGame();
                     }
                 }
             }
 
-            // Check for a win
+            // Auf Gewinn überprüfen
             function checkWin(row, col) {
                 return (
                     checkDirection(row, col, 0, 1) || // Horizontal
-                    checkDirection(row, col, 1, 0) || // Vertical
+                    checkDirection(row, col, 1, 0) || // Vertikal
                     checkDirection(row, col, 1, 1) || // Diagonal /
                     checkDirection(row, col, 1, -1)   // Diagonal \
                 );
@@ -145,9 +145,9 @@
 
             function checkDirection(row, col, rowIncrement, colIncrement) {
                 const player = currentPlayer;
-                let count = 1; // The current cell is already occupied by the player
+                let count = 1; // Die aktuelle Zelle ist bereits vom Spieler belegt
 
-                // Check in one direction
+                // In eine Richtung überprüfen
                 for (let i = 1; i <= 3; i++) {
                     const newRow = row + i * rowIncrement;
                     const newCol = col + i * colIncrement;
@@ -156,11 +156,11 @@
                         document.querySelector(`.cell:nth-child(${newRow * COLS + newCol + 1})`).innerText === player) {
                         count++;
                     } else {
-                        break; // Stop checking in this direction
+                        break; // Das Überprüfen in dieser Richtung stoppen
                     }
                 }
 
-                // Check in the opposite direction
+                // In die entgegengesetzte Richtung überprüfen
                 for (let i = 1; i <= 3; i++) {
                     const newRow = row - i * rowIncrement;
                     const newCol = col - i * colIncrement;
@@ -169,20 +169,20 @@
                         document.querySelector(`.cell:nth-child(${newRow * COLS + newCol + 1})`).innerText === player) {
                         count++;
                     } else {
-                        break; // Stop checking in this direction
+                        break; // Das Überprüfen in dieser Richtung stoppen
                     }
                 }
 
                 return count >= 4;
             }
 
-            // Check for a draw
+            // Auf Unentschieden überprüfen
             function checkDraw() {
                 const cells = document.querySelectorAll(".cell");
                 return Array.from(cells).every(cell => cell.innerText !== "");
             }
 
-            // Reset the game
+            // Spiel zurücksetzen
             function resetGame() {
                 const cells = document.querySelectorAll(".cell");
                 cells.forEach(cell => (cell.innerText = ""));
@@ -191,7 +191,7 @@
             }
 
             initializeBoard();
-            info.textContent = "X is the player, Y is the opponent";
+            info.textContent = "X ist der Spieler, Y ist der Gegner";
         });
     </script>
     <title>Connect 4</title>
